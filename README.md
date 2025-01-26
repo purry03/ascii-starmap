@@ -1,0 +1,1 @@
+# Galactic star map in the browser
