@@ -4,6 +4,8 @@
 #include <vector>
 #include <optional>
 
+#include "arena.hpp"
+
 std::string trim(const std::string &str)
 {
     size_t first = str.find_first_not_of(' ');
@@ -31,7 +33,6 @@ public:
         std::cout << "ID: HIP-" << m_ID << " RA: " << m_RA << " DEC: " << m_DEC << " MAG: " << m_MAG << std::endl;
     }
 
-private:
     std::string m_ID;
     double m_RA;
     double m_DEC;
@@ -41,7 +42,9 @@ private:
 int main()
 {
     const char *star_db_path = "data/hip_main.dat";
-    std::vector<Star> stars{};
+
+    std::vector<Star*> stars{};
+    ArenaAllocator allocator = ArenaAllocator(10*1024*1024);
 
     // Open the file in text mode
     std::ifstream db_stream(star_db_path);
@@ -82,7 +85,12 @@ int main()
 
             if(mag_str.find_first_not_of(' ') != std::string::npos){
                 double mag = std::stod(mag_str);
-                stars.emplace_back(id, ra_deg, dec_deg, mag);
+                Star* newStar = allocator.alloc<Star>();
+                newStar->m_ID = id;
+                newStar->m_RA = ra_deg;
+                newStar->m_DEC = dec_deg;
+                newStar->m_MAG = mag;
+                stars.emplace_back(newStar);
             }
             else{
                 continue;
@@ -93,7 +101,7 @@ int main()
         catch (const std::exception &e)
         {
             std::cerr << "Exception occured: " << e.what() << std::endl;
-            break;
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -101,8 +109,7 @@ int main()
 
     if (!stars.empty())
     {
-        stars.at(0).print();
-        std::cout << (sizeof(stars[0]) * stars.size())/1024/1024 << "MB" << std::endl;
+        stars.at(0)->print();
     }
 
     return 0;
