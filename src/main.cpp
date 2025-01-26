@@ -82,7 +82,6 @@ int main()
             double dec_deg = dec_sign * (dec_hh + dec_mm / 60.0 + dec_ss / 3600.0);
 
             // Parse Magnitude
-
             if(mag_str.find_first_not_of(' ') != std::string::npos){
                 double mag = std::stod(mag_str);
                 Star* newStar = allocator.alloc<Star>();
@@ -107,10 +106,10 @@ int main()
 
     std::cout << "Stars processed: " << stars.size() << std::endl;
 
-    if (!stars.empty())
-    {
-        stars.at(0)->print();
-    }
+    int height = 160, width = 44;
+    float zBuffer[160 * 44];
+    char buffer[160 * 44];
+    int backgroundASCIICode = ' ';
 
     return 0;
 }
